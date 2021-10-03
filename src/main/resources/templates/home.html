@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset='utf-8'/>
+    <title>Event Planner</title>
+    <link rel="icon" href="images/planner.png">
+    <!--JQuery-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="http://malsup.github.com/jquery.form.js"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+
+    <!--Swal-->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+
+    <link href='lib/main.css' rel='stylesheet'/>
+    <link href='css/Home.css' rel='stylesheet'/>
+    <script src='lib/main.js'></script>
+</head>
+<body>
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">
+                <img class="d-inline-block" alt="Brand" src="images/planner.png" width="55px" height="55px"
+                     style="margin-top: -12px">
+            </a>
+            <span class="navbar-text container-fluid-nav text-center" style="font-size: 1.8em">
+                Event Manager
+            </span>
+        </div>
+    </div>
+</nav>
+<div class="mainPanel">
+    <div class="leftPanel">Input<br/>
+
+        <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" class="form-control" id="title">
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <input type="text" class="form-control" id="description">
+        </div>
+
+        <div class="form-group">
+            <label for="startDate">Start Date</label>
+            <input type="date" class="form-control" id="startDate">
+        </div>
+
+        <div class="form-group">
+            <label for="endDate">End Date</label>
+            <input type="date" class="form-control" id="endDate">
+        </div>
+
+        <div class="form-group">
+            <label for="startTime">Start Time</label>
+            <input type="time" class="form-control" id="startTime">
+        </div>
+        <div class="form-group">
+            <label for="endTime">End Time</label>
+            <input type="time" class="form-control" id="endTime">
+        </div>
+        <div class="form-group">
+            <button class="btn btn-primary" style="width: 100%;" onclick="AddEventDetails()">Create Event</button>
+        </div>
+
+    </div>
+    <div id='calendar' class="middlePanel">Calendar</div>
+    <div class="rightPanel"><label class="text-center" style="text-align: center;display: inline-block;">Up coming
+        events <img class="d-inline-block" alt="Brand"
+                    src="images/notification.png"
+                    width="40px" height="40px"
+                    style="margin-top: -12px"></label>
+        <div id="eventList" class="col">
+
+        </div>
+    </div>
+</div>
+
+<script>
+
+    let events = [];
+    let allEvents = [];
+    let calendar;
+    document.addEventListener('DOMContentLoaded', function () {
+        let calendarEl = document.getElementById('calendar');
+        calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            eventClick: function (info) {
+                console.log(info);
+                Swal.fire(
+                    info.event.title,
+                    '<ul><li>Start Date: ' + new Date(info.event.start).toDateString() + '\n</li><li>' +
+                    'End Date: ' + new Date(info.event.end).toDateString() + '</li></ul>',
+                    'info'
+                );
+
+                // change the border color just for fun
+                info.el.style.borderColor = 'red';
+            }
+
+        });
+        calendar.render();
+    });
+
+    // Get All up coming events
+    $.ajax({
+        type: "GET",
+        url: "http://localhost:8081/api/google/events",
+        success: function (result) {
+            console.log(result);
+            if (typeof result != 'undefined') {
+                events = result;
+                result.forEach((event) => {
+                    let eventList = document.getElementById('eventList');
+                    let panelDiv = document.createElement('div');
+                    panelDiv.setAttribute('class', 'panel panel-success');
+                    let panelHeading = document.createElement('div');
+                    panelHeading.setAttribute('class', 'panel-heading');
+
+                    panelHeading.innerText = event.summary;
+
+                    let panelBody = document.createElement('div');
+                    panelBody.setAttribute('class', 'panel-body');
+
+                    eventList.appendChild(panelDiv);
+                    panelDiv.appendChild(panelHeading);
+                    panelHeading.appendChild(panelBody);
+                    $(`<table class="table table-stripped">
+                        <tbody>
+                            <tr>
+                                <td>Description</td>
+                                <td>${event.description}</td>
+                            </tr>
+                            <tr>
+                                <td>Start Date</td>
+                                <td>${new Date(event.startDateTime).toLocaleDateString()}</td>
+                            </tr>
+                                <td>End Date</td>
+                                <td>${new Date(event.endDateTime).toLocaleDateString()}</td>
+                            </tr>
+                        </tbody>
+                        </table>`).appendTo(panelBody);
+
+                });
+            }
+
+        },
+        error: function (e) {
+
+        }
+    });
+
+    // Add Event
+    function AddEventDetails() {
+        const payload = {
+            summary: document.getElementById('title').value,
+            description: document.getElementById('description').value,
+            startDate: document.getElementById('startDate').value,
+            endDate: document.getElementById('endDate').value,
+            startTime: document.getElementById('startTime').value,
+            endTime: document.getElementById('endTime').value
+        };
+        $.ajax({
+            type: "POST",
+            url: "http://localhost:8081/api/google/event",
+            data: payload,
+            success: function (result) {
+                console.log(result);
+                Swal.fire(
+                    "Event Created Successfully !",
+                    "",
+                    "success"
+                )
+            }
+        })
+    }
+
+    // Get all events including past
+    $.ajax({
+        type: "GET",
+        url: "http://localhost:8081/api/google/all-events",
+        success: function (result) {
+            allEvents = result;
+            if (allEvents.length > 0) {
+                let formattedEvents = [];
+                formattedEvents = allEvents.map((event) => {
+                    return {
+                        title: event.summary,
+                        start: event.startDateTime,
+                        end: event.endDateTime
+                    }
+                });
+                console.log(formattedEvents);
+                calendar.addEventSource(formattedEvents);
+            }
+        }
+    })
+</script>
+</body>
+</html>
