@@ -46,7 +46,6 @@ public class CalendarEventService {
         // Creating a calendar service with the credential object created
         Calendar service = new Calendar.Builder(new NetHttpTransport(), JacksonFactory.getDefaultInstance(), credential)
                 .setApplicationName(APPLICATION_NAME).build();
-
         // List upcoming events - sorted with starting time
         DateTime now = new DateTime(System.currentTimeMillis());
         Events events;
@@ -57,10 +56,8 @@ public class CalendarEventService {
             events = service.events().list(CALENDAR_ID).setOrderBy("startTime").setSingleEvents(true)
                     .execute();
         }
-
         List<Event> items = events.getItems();
         List<CalendarEvent> eventList = new ArrayList<>();
-
         /* map events to simpler models */
         for (Event event : items) {
 
@@ -73,15 +70,12 @@ public class CalendarEventService {
             if (end == null) {
                 end = event.getEnd().getDate();
             }
-
             CalendarEvent calendarEvent = new CalendarEvent();
-
             calendarEvent.setId(event.getId());
             calendarEvent.setSummary(event.getSummary());
             calendarEvent.setDescription(event.getDescription());
             calendarEvent.setStartDateTime(start.toString());
             calendarEvent.setEndDateTime(end.toString());
-
             eventList.add(calendarEvent);
         }
         return eventList;
@@ -100,17 +94,12 @@ public class CalendarEventService {
     }
 
     public Event addEvent(NewEvent newEvent) throws IOException {
-
         GoogleCredential credential = new GoogleCredential().setAccessToken(accessTokenDTO.getAccessToken());
-
         Calendar service = new Calendar.Builder(new NetHttpTransport(), JacksonFactory.getDefaultInstance(), credential)
                 .setApplicationName(APPLICATION_NAME).build();
-
         Event event = new Event().setSummary(newEvent.getSummary()).setDescription(newEvent.getDescription());
-
         String timeZone = "+05:30";
         String strStartDateTime = newEvent.getStartDate() + "T" + newEvent.getStartTime() + ":00" + timeZone;
-
         DateTime startDateTime = new DateTime(strStartDateTime);
         EventDateTime start = new EventDateTime().setDateTime(startDateTime);
         event.setStart(start);

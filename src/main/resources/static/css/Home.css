@@ -37,3 +37,7 @@
     align-items: center;
     text-align: center;
 }
+
+.label {
+    font-family: Georgia, serif;
+}
