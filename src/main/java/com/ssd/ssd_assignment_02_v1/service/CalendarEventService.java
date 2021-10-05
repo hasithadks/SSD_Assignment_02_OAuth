@@ -93,6 +93,20 @@ public class CalendarEventService {
 
     }
 
+
+
+    public void removeEvent(String id) throws IOException{
+        GoogleCredential credential = new GoogleCredential().setAccessToken(accessTokenDTO.getAccessToken());
+
+        Calendar service = new Calendar.Builder(new NetHttpTransport(), JacksonFactory.getDefaultInstance(), credential)
+                .setApplicationName(APPLICATION_NAME).build();
+
+        service.events().delete(CALENDAR_ID, id).execute();
+        System.out.println("helo"+id);
+    }
+
+
+
     public Event addEvent(NewEvent newEvent) throws IOException {
         GoogleCredential credential = new GoogleCredential().setAccessToken(accessTokenDTO.getAccessToken());
         Calendar service = new Calendar.Builder(new NetHttpTransport(), JacksonFactory.getDefaultInstance(), credential)

@@ -137,8 +137,12 @@
                     $(`<table class="table table-stripped">
                         <tbody>
                             <tr>
+                                <td>Event ID</td>
+                                <td><input name="id" value="${event.id}" id="eventId" size="12"></td>
+                            </tr>
+                            <tr>
                                 <td>Description</td>
-                                <td>${event.description}</td>
+                               <td> ${event.description}</td>
                             </tr>
                             <tr>
                                 <td>Start Date</td>
@@ -146,6 +150,11 @@
                             </tr>
                                 <td>End Date</td>
                                 <td>${new Date(event.endDateTime).toLocaleDateString()}</td>
+                            </tr>
+                            <tr>
+
+                                <td><button class="btn btn btn-danger" style="width: 100%;" onclick="DeleteEventDetails()">Delete Event</button></td>
+
                             </tr>
                         </tbody>
                         </table>`).appendTo(panelBody);
@@ -158,6 +167,26 @@
 
         }
     });
+
+
+    function DeleteEventDetails(){
+        const eId = document.getElementById('eventId').value
+
+        $.ajax({
+            url: 'http://localhost:8081/api/google/'+eId,
+            type: 'DELETE',
+            success: function(result) {
+                console.log('success');
+                Swal.fire(
+                    "Event Delete Successfully !",
+                    "",
+                    "success"
+                )
+            }
+        });
+
+
+    }
 
     // Add Event
     function AddEventDetails() {

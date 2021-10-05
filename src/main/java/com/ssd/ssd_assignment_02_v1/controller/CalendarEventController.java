@@ -65,4 +65,16 @@ public class CalendarEventController {
         System.out.println(newEvent.toString());
         return new ResponseEntity<>(calendarEventService.addEvent(newEvent), HttpStatus.CREATED);//call calendar service to update calendar
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Long> deletePost(@PathVariable String id) throws IOException {
+        System.out.println(id);
+        calendarEventService.removeEvent(id);
+        System.out.println(id);
+//        if (!isRemoved) {
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        }
+//
+       return new ResponseEntity(id, HttpStatus.OK);
+    }
 }
