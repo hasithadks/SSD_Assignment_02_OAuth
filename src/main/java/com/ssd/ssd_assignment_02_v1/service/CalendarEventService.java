@@ -102,7 +102,7 @@ public class CalendarEventService {
                 .setApplicationName(APPLICATION_NAME).build();
 
         service.events().delete(CALENDAR_ID, id).execute();
-        System.out.println("helo"+id);
+
     }
 
 
